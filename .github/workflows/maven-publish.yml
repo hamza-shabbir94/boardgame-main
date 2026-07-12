@@ -7,56 +7,29 @@ on:
     branches: [ "main" ]
 
 jobs:
-  compile:
+  build-and-scan:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-    - name: compile and test with Maven
-      run: |
-        mvn compile
-        mvn test
-      
-  sonarqube:
-    name: SonarQube
-    runs-on: ubuntu-latest
-    needs: compile
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+          fetch-depth: 0  # Required for SonarQube analysis
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build, Test, and Analyze
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          -Dsonar.projectKey=hamza-shabbir94_boardgame-main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  build:
-    runs-on: ubuntu-latest
-    needs:
-      - sonarqube
-    steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: maven
-    - name: build
-      run: |
-        mvn package
-    - uses: actions/upload-artifacts@4
-      with:
-        name: boardgame
-        path: .
-    - uses: actions/download-artifacts@4
-      with:
-        name: boardgame
-        path: .
-    
-  
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: boardgame-package
+          path: target/*.jar
