@@ -34,9 +34,3 @@ jobs:
         with:
           name: boardgame-package
           path: target/*.jar
-
-      - name: download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: boardgame-package
-          path: target/*.jar
