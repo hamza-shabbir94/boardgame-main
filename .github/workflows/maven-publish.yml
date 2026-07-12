@@ -24,7 +24,8 @@ jobs:
       - name: Build, Test, and Analyze
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-          -Dsonar.projectKey=hamza-shabbir94_boardgame-main
+          -Dsonar.projectKey=hamza-shabbir94_boardgame-main \
+          -Dsonar.organization=hamza-shabbir94
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
